@@ -1,0 +1,69 @@
+/* Color
+-------------------------- */
+
+/// color|1|Brand Color|0
+$--color-primary: #508BFF !default;
+$--color-primary-disabled:#CDD0D5 !default;
+$--color-box-shadow-primary: #C7DAFF !default;
+/// color|1|Background Color|4
+$--color-white: #FFFFFF !default;
+$--color-white-d: rgba(255, 255, 255, 0.3) !default;
+$--color-white-l: rgba(255, 255, 255, 0.5);
+$--color-white-ll:  rgba(255, 255, 255, 0.8);
+/// color|1|Background Color|4
+$--color-black: #000000 !default;
+
+/* ecf5ff */
+
+/// color|1|Functional Color|1
+$--color-success: #75D473 !default;
+$--color-offer: #6ECED0 !default;
+$--color-purple: #752FBE !default;
+$--color-blue: #38A2FF !default;
+$--color-minimalist: #DFD1B2 !default;
+$--color-minimalist-tag: #D3C199 !default;
+/// color|1|Functional Color|1
+$--color-warning: #FA9243 !default;
+/// color|1|Functional Color|1
+$--color-danger: #D81E06 !default;
+$--color-out: #9BA5BC !default;
+/// color|1|Functional Color|1
+$--color-info: #f2f2f2 !default;
+$--color-dark-main: #1D1D1D !default;
+/// color|1|Font Color|2
+$--color-text-primary: #555 !default;
+$--color-text-back: #424242 !default;
+/// color|1|Font Color|2
+$--color-text-regular: #9a9a9a !default;
+$--color-text-tabbar: #969696 !default;
+/// color|1|Font Color|2
+$--color-text-secondary: #70747A !default;
+$--color-text-secondary-empty: #828282 !default;
+$--color-text-calendar-h: #666666 !default;
+$--color-text-calendar-a: #999999 !default;
+$--color-text-calendar-b: #222222 !default;
+$--color-text-calendar-c: #333333 !default;
+$--color-text-calendar-m: #3C3C3C !default;
+$--color-text-origin: #717171 !default;
+/// color|1|Font Color|2
+$--color-text-placeholder: #aaa !default;
+$--border-color: #efefef !default;
+$--border-color-rf: #979797 !default;
+/// color|1|Border Color|3
+$--border-color-base: #D3D7E1 !default;
+$--border-color-hot: #020202 !default;
+/// color|1|Border Color|3
+$--border-color-light: #d8d8d8 !default;
+/// color|1|Border Color|3
+$--border-color-lighter: #EBEEF5 !default;
+$--border-color-e: #DADFE9 !default;
+/// color|1|Border Color|3
+$--border-color-extra-light: #F2F6FC !default;
+// Background
+/// color|1|Background Color|4
+$--background-color-base: #f5f5f5 !default;
+$--background-color-tag: #EFF5FF !default;
+$--background-color-second: #EFF5FF !default;
+$--background-color-light: #F7FBFF !default;
+$--background-color-lighter: #F0F4FB !default;
+$noc: 10;
