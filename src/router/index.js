@@ -2,12 +2,10 @@ import {
     createRouter,
     createWebHashHistory
 } from 'vue-router'
-import Home from '../views/Home.vue'
 
 const routes = [{
         path: '/',
-        name: 'Home',
-        component: Home
+        rediredirect: '/recommend'
     }, {
         path: '/recommend',
         name: 'recommend',
@@ -16,6 +14,14 @@ const routes = [{
         path: '/singer',
         name: 'singer',
         component: () => import(/* webpackChunkName: "recommend" */ '../views/singer')
+    }, {
+        path: '/rank',
+        name: 'rank',
+        component: () => import(/* webpackChunkName: "recommend" */ '../views/rank')
+    }, {
+        path: '/search',
+        name: 'search',
+        component: () => import(/* webpackChunkName: "recommend" */ '../views/search')
     }
 ]
 

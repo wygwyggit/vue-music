@@ -8,7 +8,7 @@ const get = function (url, params) {
     }).then(res => {
         const serverData = res.data
         if (serverData.code === ERR_OK) {
-            return serverData.banners
+            return serverData
         }
     }).catch(e => {
         console.log(e)
