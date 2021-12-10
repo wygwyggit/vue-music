@@ -1,5 +1,5 @@
 <template>
-    <scroll class="index-list" :probeType="3" @scroll="onScroll" v-loading="!data.length">
+    <scroll class="index-list" :probeType="3" @scroll="onScroll" v-loading="!data.length" ref="bsRef">
         <ul ref="groupRef">
             <li v-for="group in data" :key="group.title" class="group">
                 <h2 class="title">{{group.title}}</h2>
@@ -12,10 +12,11 @@
             </li>
         </ul>
         <div class="fixed" v-show="fixedTitle" :style="fixidStyle">
-            <div class="fixed-title">{{fixedTitle}}</div>
+            <h2 class="fixed-title">{{fixedTitle}}</h2>
         </div>
-        <ul class="shortcut">
-            <li v-for="(item, index) of shortCutList" :key="index" class="item"  :class="{'current':currentIndex===index}">{{item}}</li>
+        <ul class="shortcut" @touchstart.stop.prevent="onShortCutTouchStart" @touchmove.stop.prevent="onShortCutTouchMove">
+            <li v-for="(item, index) of shortCutList" :key="index" :data-index="index" class="item"
+                :class="{'current':currentIndex===index}">{{item}}</li>
         </ul>
     </scroll>
 </template>
@@ -45,15 +46,21 @@
                 currentIndex
             } = useFixed(props)
             const {
-                shortCutList
-            } = useShortCur(props)
+                shortCutList,
+                onShortCutTouchStart,
+                onShortCutTouchMove,
+                bsRef
+            } = useShortCur(props, groupRef)
             return {
                 groupRef,
                 onScroll,
                 fixedTitle,
                 fixidStyle,
                 shortCutList,
-                currentIndex
+                onShortCutTouchStart,
+                onShortCutTouchMove,
+                currentIndex,
+                bsRef
             }
         }
     }
@@ -68,7 +75,9 @@
 
         .group {
             padding-bottom: .4rem;
-
+            &:last-child {
+                padding-bottom: 5rem;
+            }
             .title {
                 height: .8rem;
                 line-height: .8rem;
@@ -95,6 +104,7 @@
                 }
             }
         }
+
         .shortcut {
             position: absolute;
             right: .3rem;
@@ -106,11 +116,13 @@
             background-color: #fff;
             color: $--color-text-secondary;
             box-shadow: 0 0 20px 0 hsl(0deg 0% 84% / 50%);
+
             .item {
                 padding: .1rem;
                 line-height: 1;
                 font-size: .3rem;
                 text-align: center;
+
                 &.current {
                     color: $--color-primary;
                 }
