@@ -4,7 +4,7 @@
             <li v-for="group in data" :key="group.title" class="group">
                 <h2 class="title">{{group.title}}</h2>
                 <ul>
-                    <li v-for="item in group.list" :key="item.id" class="item">
+                    <li v-for="item in group.list" :key="item.id" class="item" @click="selectSinger(item)">
                         <img class="avatar" v-lazy="item.pic">
                         <span class="name">{{item.name}}</span>
                     </li>
@@ -37,7 +37,8 @@
                 }
             }
         },
-        setup(props) {
+        emits: ['select'],
+        setup(props, { emit }) {
             const {
                 groupRef,
                 onScroll,
@@ -51,7 +52,11 @@
                 onShortCutTouchMove,
                 bsRef
             } = useShortCur(props, groupRef)
+            function selectSinger(item) {
+                emit('select', item)
+            }
             return {
+                selectSinger,
                 groupRef,
                 onScroll,
                 fixedTitle,

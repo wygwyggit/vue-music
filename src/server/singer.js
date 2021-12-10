@@ -1,5 +1,8 @@
 import { get } from './base'
 import pinyin from 'pinyin'
+export function getSingerDetail(id) {
+    return get(`/artist/detail?id=${id}`)
+}
 export async function getSingerList(pageSize = 1, limit = 100) {
   const result = await get(`/top/artists?offset=${(pageSize - 1) * limit}&limit=${limit}`)
   const singerList = result.artists

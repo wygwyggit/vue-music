@@ -1,6 +1,7 @@
 <template>
     <div :class="prefixCls">
-        <index-list :data="singerList"></index-list>
+        <index-list :data="singerList" @select="selectSinger"></index-list>
+        <router-view :singer="selectedSinger"></router-view>
     </div>
 </template>
 
@@ -17,11 +18,20 @@
          data() {
              return {
                  prefixCls: 'singer',
-                 singerList: []
+                 singerList: [],
+                 selectedSinger: null
              }
          },
          async created() {
             this.singerList = await getSingerList()
+         },
+         methods: {
+             selectSinger(item) {
+                 this.selectedSinger = item
+                 this.$router.push({
+                     path: `/singer/${item.id}`
+                 })
+             }
          }
     }
 </script>
