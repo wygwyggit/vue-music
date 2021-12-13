@@ -1,7 +1,7 @@
 <template>
     <div :class="prefixCls">
         <index-list :data="singerList" @select="selectSinger"></index-list>
-        <router-view :singer="selectedSinger"></router-view>
+        <router-view :singerId="selectedSinger"></router-view>
     </div>
 </template>
 
@@ -27,7 +27,7 @@
          },
          methods: {
              selectSinger(item) {
-                 this.selectedSinger = item
+                 this.selectedSinger = item.id
                  this.$router.push({
                      path: `/singer/${item.id}`
                  })
