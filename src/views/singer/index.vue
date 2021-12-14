@@ -7,6 +7,8 @@
 
 <script>
     import IndexList from '@/components/base/index-list'
+    import storage from '@/utils/store.js'
+    import { SINGER_MID } from '@/assets/js/constant'
     import {
         getSingerList
     } from '@/server/singer'
@@ -28,9 +30,13 @@
          methods: {
              selectSinger(item) {
                  this.selectedSinger = item.id
+                 this.cacheSinger(this.selectedSinger)
                  this.$router.push({
                      path: `/singer/${item.id}`
                  })
+             },
+             cacheSinger(id) {
+                 storage.session.set(SINGER_MID, id)
              }
          }
     }

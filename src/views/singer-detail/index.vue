@@ -11,6 +11,10 @@
 <script>
     import MusicDetail from '@/components/music-detail'
     import SongList from '@/components/base/song-list'
+    import storage from '@/utils/store.js'
+    import {
+        SINGER_MID
+    } from '@/assets/js/constant'
     import {
         getSingerDetail,
         getSingerSongs
@@ -33,6 +37,18 @@
             }
         },
         computed: {
+            singerMid() {
+                let mid = null
+                if (this.singerId) {
+                    mid = this.singerId
+                } else {
+                    const cacheSingerMid = storage.session.get(SINGER_MID)
+                    if (cacheSingerMid && cacheSingerMid === this.$route.params.id) {
+                        mid = cacheSingerMid
+                    }
+                }
+                return mid
+            },
             title() {
                 return (this.singer.artist || {}).name || ''
             },
@@ -41,12 +57,11 @@
             }
         },
         async created() {
-            const res = await getSingerDetail(this.singerId)
-            const songsData = await getSingerSongs(this.singerId)
+            const res = await getSingerDetail(this.singerMid)
+            const songsData = await getSingerSongs(this.singerMid)
             res && (this.singer = res.data)
             songsData && (this.songs = songsData.songs)
             this.isLoading = false
-            console.log(this.singer)
         }
     }
 </script>
@@ -64,15 +79,16 @@
         background: #fff;
 
         .switches {
-           padding-top: .16rem;
-           padding-bottom: .25rem;
+            padding-top: .16rem;
+            padding-bottom: .25rem;
         }
 
         .song-list {
             padding: 0 .52rem;
         }
+
         .main-content {
-            > div {
+            >div {
                 background-color: #fff;
             }
         }
