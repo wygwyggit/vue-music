@@ -1,6 +1,6 @@
 <template>
     <div :class="prefixCls">
-        <index-list :data="singerList" @select="selectSinger"></index-list>
+        <index-list :data="singerList" @select="selectSinger" v-loading="isLoading"></index-list>
         <router-view v-slot="{ Component }">
             <transition name="slide">
                 <component :is="Component" :singerId="selectedSinger" />
@@ -23,11 +23,13 @@
              return {
                  prefixCls: 'singer',
                  singerList: [],
-                 selectedSinger: null
+                 selectedSinger: null,
+                 isLoading: true
              }
          },
          async created() {
             this.singerList = await getSingerList()
+            this.isLoading = false
          },
          methods: {
              selectSinger(item) {
