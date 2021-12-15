@@ -1,14 +1,16 @@
 <template>
     <div :class="prefixCls">
         <index-list :data="singerList" @select="selectSinger"></index-list>
-        <router-view :singerId="selectedSinger"></router-view>
+        <router-view v-slot="{ Component }">
+            <transition name="slide">
+                <component :is="Component" :singerId="selectedSinger" />
+            </transition>
+        </router-view>
     </div>
 </template>
 
 <script>
     import IndexList from '@/components/base/index-list'
-    import storage from '@/utils/store.js'
-    import { SINGER_MID } from '@/assets/js/constant'
     import {
         getSingerList
     } from '@/server/singer'
@@ -30,13 +32,9 @@
          methods: {
              selectSinger(item) {
                  this.selectedSinger = item.id
-                 this.cacheSinger(this.selectedSinger)
                  this.$router.push({
                      path: `/singer/${item.id}`
                  })
-             },
-             cacheSinger(id) {
-                 storage.session.set(SINGER_MID, id)
              }
          }
     }

@@ -1,6 +1,6 @@
 <template>
     <div :class="prefixCls">
-        <music-detail :title="title" :pic="pic" :isLoading="isLoading">
+        <music-detail :title="title" :pic="pic" :isLoading="isLoading" :noResult="noResult">
             <div>
                 <song-list :songs="songs"></song-list>
             </div>
@@ -11,10 +11,6 @@
 <script>
     import MusicDetail from '@/components/music-detail'
     import SongList from '@/components/base/song-list'
-    import storage from '@/utils/store.js'
-    import {
-        SINGER_MID
-    } from '@/assets/js/constant'
     import {
         getSingerDetail,
         getSingerSongs
@@ -37,15 +33,15 @@
             }
         },
         computed: {
+            noResult() {
+                return !this.isLoading && this.songs.length > 0
+            },
             singerMid() {
                 let mid = null
                 if (this.singerId) {
                     mid = this.singerId
                 } else {
-                    const cacheSingerMid = storage.session.get(SINGER_MID)
-                    if (cacheSingerMid && cacheSingerMid === this.$route.params.id) {
-                        mid = cacheSingerMid
-                    }
+                    mid = this.$route.params.id
                 }
                 return mid
             },

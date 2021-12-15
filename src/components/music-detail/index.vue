@@ -1,5 +1,5 @@
 <template>
-    <div :class="prefixCls" v-loading="isLoading">
+    <div :class="prefixCls">
         <div class="header">
             <i class="'music-icon icon-back" @click="goBack"></i>
             <span>{{title}}</span>
@@ -7,7 +7,7 @@
         <div class="bg-image" :style="bgImageStyle" ref="bgImage">
             <div class="filter" :style="filterStyle"></div>
         </div>
-        <scroll class="main-content" :style="scrollStyle" :probeType="3" @scroll="onScroll">
+        <scroll class="main-content" :style="scrollStyle" :probeType="3" @scroll="onScroll" v-loading="isLoading" v-no-result="noResult">
             <slot></slot>
         </scroll>
     </div>
@@ -23,10 +23,8 @@
         props: {
             title: String,
             pic: String,
-            isLoading: {
-                type: Boolean,
-                default: true
-            }
+            noResult: Boolean,
+            isLoading: Boolean
         },
         data() {
             return {
