@@ -7,6 +7,7 @@
 
 <script type="text/ecmascript-6">
     export default {
+        name: 'noResult',
         data() {
             return {
                 title: '暂无数据'
@@ -17,10 +18,10 @@
 
 <style scoped lang="scss">
     .no-result {
-         position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate3d(-50%, -50%, 0);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate3d(-50%, -50%, 0);
         text-align: center;
 
         .no-result-icon {

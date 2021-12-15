@@ -1,9 +1,7 @@
 <template>
     <div :class="prefixCls">
-        <music-detail :title="title" :pic="pic" :isLoading="isLoading" :noResult="noResult">
-            <div>
-                <song-list :songs="songs"></song-list>
-            </div>
+        <music-detail :title="title" :pic="pic" :isLoading="isLoading" :noResult="noResult" @randomPlay="random">
+            <song-list :songs="songs" @select="selectItem"></song-list>
         </music-detail>
     </div>
 </template>
@@ -15,6 +13,9 @@
         getSingerDetail,
         getSingerSongs
     } from '@/server/singer'
+    import {
+        mapActions
+    } from 'vuex'
     export default {
         name: 'singer-detail',
         components: {
@@ -34,7 +35,7 @@
         },
         computed: {
             noResult() {
-                return !this.isLoading && this.songs.length > 0
+                return !this.isLoading && this.songs.length < 0
             },
             singerMid() {
                 let mid = null
@@ -58,6 +59,25 @@
             res && (this.singer = res.data)
             songsData && (this.songs = songsData.songs)
             this.isLoading = false
+        },
+        methods: {
+            selectItem({
+                index
+            }) {
+                this.selectPlay({
+                    list: this.songs,
+                    index
+                })
+            },
+            random() {
+                this.randomPlay({
+                    list: this.songs
+                })
+            },
+            ...mapActions([
+                'selectPlay',
+                'randomPlay'
+            ])
         }
     }
 </script>
@@ -81,12 +101,6 @@
 
         .song-list {
             padding: 0 .52rem;
-        }
-
-        .main-content {
-            >div {
-                background-color: #fff;
-            }
         }
 
     }

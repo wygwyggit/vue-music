@@ -1,5 +1,5 @@
 <template>
-    <scroll class="index-list" :probeType="3" @scroll="onScroll" v-loading="!data.length" ref="bsRef">
+    <scroll class="index-list" :probeType="3" @scroll="onScroll"  ref="bsRef">
         <ul ref="groupRef">
             <li v-for="group in data" :key="group.title" class="group">
                 <h2 class="title">{{group.title}}</h2>

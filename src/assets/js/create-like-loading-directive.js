@@ -3,6 +3,7 @@ import {
     createApp
 } from 'vue'
 export function createLikeLoadingDirective(comp) {
+    const name = comp.name
     return {
         mounted(el, binding) {
             const instance = createApp(comp).mount(document.createElement('div'))
@@ -10,16 +11,19 @@ export function createLikeLoadingDirective(comp) {
             if (typeof title !== 'undefined') {
                 instance.setTitle(title)
             }
+            if (!el[name]) {
+                el[name] = {}
+            }
+            el[name].instance = instance
             el.instance = instance
             if (binding.value) {
                 append(el)
             }
         },
         updated(el, binding) {
-            console.log(binding.value, binding.oldValue)
             const title = binding.title
             if (typeof title !== 'undefined') {
-                el.instance.setTitle(title)
+                el[name].instance.setTitle(title)
             }
             if (binding.value !== binding.oldValue) {
                 binding.value ? append(el) : remove(el)
@@ -27,10 +31,9 @@ export function createLikeLoadingDirective(comp) {
         }
     }
     function append(el) {
-        console.log(el)
-        el.appendChild(el.instance.$el)
+        el.appendChild(el[name].instance.$el)
     }
     function remove(el) {
-        el.removeChild(el.instance.$el)
+        el.removeChild(el[name].instance.$el)
     }
 }

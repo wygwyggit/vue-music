@@ -1,14 +1,23 @@
 <template>
     <div :class="prefixCls">
         <div class="header">
-            <i class="'music-icon icon-back" @click="goBack"></i>
-            <span>{{title}}</span>
+            <i class="music-icon icon-back" @click="goBack"></i>
+            <span :style="titleStyle">{{title}}</span>
         </div>
         <div class="bg-image" :style="bgImageStyle" ref="bgImage">
             <div class="filter" :style="filterStyle"></div>
         </div>
-        <scroll class="main-content" :style="scrollStyle" :probeType="3" @scroll="onScroll" v-loading="isLoading" v-no-result="noResult">
-            <slot></slot>
+        <scroll class="main-content" :style="scrollStyle" :probeType="3" @scroll="onScroll" v-loading="isLoading"
+            v-no-result="noResult">
+            <div>
+                <div class="play-btn-wrapper" v-if="!noResult">
+                    <div class="play-btn" @click="random">
+                        <i class="music-icon icon-play"></i>
+                        <span class="text">随机播放全部</span>
+                    </div>
+                </div>
+                <slot></slot>
+            </div>
         </scroll>
     </div>
 </template>
@@ -34,7 +43,17 @@
                 scrollY: 0
             }
         },
+        emits: ['randomPlay'],
         computed: {
+            titleStyle() {
+                let opacity = '0'
+                if (this.scrollY > this.maxTranslateY) {
+                    opacity = '1'
+                }
+                return {
+                    opacity
+                }
+            },
             bgImageStyle() {
                 const scrollY = this.scrollY
                 let zIndex = 0
@@ -86,6 +105,9 @@
             },
             goBack() {
                 this.$router.back()
+            },
+            random() {
+                this.$emit('randomPlay')
             }
         }
     }
@@ -103,22 +125,25 @@
             top: 0;
             left: 0;
             width: 100%;
+            height: 40px;
+            line-height: 40px;
             display: flex;
             align-items: center;
             z-index: 20;
+            font-size: .48rem;
 
             i {
                 display: inline-block;
-                padding: .16rem .16rem .16rem .4rem;
+                padding: 0 .1rem 0 .4rem;
                 color: #fff;
-                font-size: .6rem;
+                font-size: .52rem;
             }
 
             span {
-                margin-left: 2.9rem;
-                font-size: .48rem;
                 line-height: .8rem;
                 color: #fff;
+                transition: all .3s;
+                opacity: 0;
             }
         }
 
@@ -144,6 +169,38 @@
             bottom: 0;
             width: 100%;
             z-index: 0;
+
+            >div {
+                background-color: #fff;
+            }
+
+            .play-btn-wrapper {
+                padding: .16rem 0 0 .52rem;
+                width: 100%;
+
+                .play-btn {
+                    box-sizing: border-box;
+                    width: 4rem;
+                    padding: .16rem 0;
+                    color: $--color-primary;
+                    border-radius: 100px;
+                    font-size: 0;
+                }
+
+                .icon-play {
+                    display: inline-block;
+                    vertical-align: middle;
+                    margin-right: 6px;
+                    font-size: .4rem;
+                }
+
+                .text {
+                    display: inline-block;
+                    vertical-align: middle;
+                    font-size: .4rem;
+                    color: $--color-dark-main;
+                }
+            }
         }
     }
 </style>
