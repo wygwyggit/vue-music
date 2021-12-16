@@ -4,6 +4,9 @@ import {
 } from 'vue-router'
 
 const routes = [{
+    path: '/',
+    component: () => import(/* webpackChunkName: "Main" */'@/Main.vue'),
+    children: [{
         path: '/',
         redirect: '/recommend'
     }, {
@@ -14,13 +17,11 @@ const routes = [{
         path: '/singer',
         name: 'singer',
         component: () => import(/* webpackChunkName: "recommend" */ '../views/singer'),
-        children: [
-            {
-                path: ':id',
-                name: 'singerDetail',
-                component: () => import(/* webpackChunkName: "singerDetail" */ '../views/singer-detail')
-            }
-        ]
+        children: [{
+            path: ':id',
+            name: 'singerDetail',
+            component: () => import(/* webpackChunkName: "singerDetail" */ '../views/singer-detail')
+        }]
     }, {
         path: '/rank',
         name: 'rank',
@@ -29,8 +30,8 @@ const routes = [{
         path: '/search',
         name: 'search',
         component: () => import(/* webpackChunkName: "recommend" */ '../views/search')
-    }
-]
+    }]
+}]
 
 const router = createRouter({
     history: createWebHashHistory(),

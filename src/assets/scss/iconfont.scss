@@ -1,8 +1,8 @@
 @font-face {
     font-family: "music-icon"; /* Project id 3019984 */
-    src: url('//at.alicdn.com/t/font_3019984_svojrcfdzct.woff2?t=1639555717800') format('woff2'),
-         url('//at.alicdn.com/t/font_3019984_svojrcfdzct.woff?t=1639555717800') format('woff'),
-         url('//at.alicdn.com/t/font_3019984_svojrcfdzct.ttf?t=1639555717800') format('truetype');
+    src: url('//at.alicdn.com/t/font_3019984_fbffnigkmqc.woff2?t=1639635448463') format('woff2'),
+         url('//at.alicdn.com/t/font_3019984_fbffnigkmqc.woff?t=1639635448463') format('woff'),
+         url('//at.alicdn.com/t/font_3019984_fbffnigkmqc.ttf?t=1639635448463') format('truetype');
   }
 
   .music-icon {
@@ -11,6 +11,10 @@
     font-style: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  .icon-down:before {
+    content: "\e65e";
   }
 
   .icon-back:before {

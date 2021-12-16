@@ -5,7 +5,8 @@
                 {{item.title}}
             </span>
         </router-link>
-        <span :style="{width:lineStyle.width + 'px',left:lineStyle.left + 'px'}" class="line" v-if="lineStyle.left"></span>
+        <span :style="{width:lineStyle.width + 'px',left:lineStyle.left + 'px'}" class="line"
+            v-if="lineStyle.left"></span>
     </div>
 </template>
 <script>
@@ -14,7 +15,8 @@
         ref
     } from '@vue/reactivity'
     import {
-        watchEffect
+        watchEffect,
+        nextTick
     } from '@vue/runtime-core'
     import {
         useRoute
@@ -38,11 +40,16 @@
                 left: 0
             })
             const route = useRoute()
-            const goPath = (idx) => {
+            const goPath = async (idx) => {
                 const domEle = rootTabRef.value
-                const currentTabEle = domEle.children[idx]
-                lineStyle.left = currentTabEle.getBoundingClientRect().left
-                lineStyle.width = currentTabEle.getBoundingClientRect().width
+                await nextTick()
+                try {
+                    const currentTabEle = domEle.children[idx]
+                    lineStyle.left = currentTabEle.getBoundingClientRect().left
+                    lineStyle.width = currentTabEle.getBoundingClientRect().width
+                } catch (err) {
+
+                }
             }
             watchEffect(() => {
                 const idx = props.tabs.findIndex(x => x.path === route.path)

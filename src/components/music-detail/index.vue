@@ -45,6 +45,16 @@
         },
         emits: ['randomPlay'],
         computed: {
+            infoStyle() {
+                const scrollY = this.scrollY
+                let height = 'auto'
+                if (scrollY < 0) {
+                    height = (this.$refs.infoRef.clientHeight + (-scrollY)) + 'px'
+                }
+                return {
+                    height
+                }
+            },
             titleStyle() {
                 let opacity = '0'
                 if (this.scrollY > this.maxTranslateY) {
@@ -152,15 +162,20 @@
             width: 100%;
             transform-origin: top;
             background-size: cover;
+            background-position: center center;
             z-index: 0;
 
             .filter {
+                content: "";
                 position: absolute;
                 top: 0;
                 left: 0;
+                z-index: 1;
                 width: 100%;
                 height: 100%;
-                background: rgba(7, 17, 27, 0.4);
+                background-image: url('./user_top_mask.png');
+                background-size: cover;
+                background-position: center center;
             }
         }
 
@@ -175,7 +190,7 @@
             }
 
             .play-btn-wrapper {
-                padding: .16rem 0 0 .52rem;
+                padding: .16rem 0 0 .48rem;
                 width: 100%;
 
                 .play-btn {
@@ -191,7 +206,7 @@
                     display: inline-block;
                     vertical-align: middle;
                     margin-right: 6px;
-                    font-size: .4rem;
+                    font-size: .55rem;
                 }
 
                 .text {
