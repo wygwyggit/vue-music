@@ -4,14 +4,33 @@
             <div class="bg-img" :style="bgImageStyle">
             </div>
             <div class="top">
-                <i class="back music-icon icon-down"></i>
+                <i class="back music-icon icon-down" @click="goBack"></i>
                 <div class="song-name">
                     {{currentSong.name}}
                 </div>
                 <div class="song-singer">{{ songSingers }}</div>
             </div>
+            <div class="bottom">
+                <div class="operators">
+                    <div class="icon i-left">
+                        <i class="music-icon icon-sequence"></i>
+                    </div>
+                    <div class="icon i-left" :class="disableCls">
+                        <i class="music-icon icon-prev" @click="prevPlay"></i>
+                    </div>
+                    <div class="icon i-center" :class="disableCls">
+                        <i class="music-icon" :class="{'icon-pause': playing,'icon-mplay': !playing }" @click="togglePlay"></i>
+                    </div>
+                    <div class="icon i-right" :class="disableCls">
+                        <i class="music-icon icon-next" @click="nextPlay"></i>
+                    </div>
+                    <div class="icon i-right">
+                        <i class="music-icon icon-like"></i>
+                    </div>
+                </div>
+            </div>
         </div>
-        <audio ref="audioRef"></audio>
+        <audio ref="audioRef" @pause="pause"></audio>
     </div>
 </template>
 
@@ -43,6 +62,7 @@
                 const arr = (currentSong.value.ar || []).map(x => x.name)
                 return arr.join('/')
             })
+            const playing = computed(() => store.state.playing)
             const bgImageStyle = computed(() => {
                 let backgroundImage = ''
                 const songInfoV = songInfo.value
@@ -60,9 +80,59 @@
                 }
                 songInfo.value = await getSongInfo(songId)
                 const audioEl = audioRef.value
+                if (!songInfo.value.songUrl) {
+                    audioEl.src = ''
+                    store.commit('setPlayingState', false)
+                    return console.log('歌曲暂时无法播放')
+                }
                 audioEl.src = songInfo.value.songUrl
                 audioEl.play()
             })
+            watch(playing, newVal => {
+                const audioEl = audioRef.value
+                if (newVal) {
+                    audioEl.play()
+                } else {
+                    audioEl.pause()
+                }
+            })
+            const currentIndex = computed(() => store.state.currentIndex)
+            const playList = computed(() => store.state.playlist)
+            function prevPlay() {
+                const list = playList.value
+                if (!list.length || list.length === 1) return
+                let index = currentIndex.value - 1
+                if (index < 0) {
+                    index = list.length - 1
+                }
+                if (!playing.value) {
+                    store.commit('setPlayingState', true)
+                }
+                store.commit('setCurrentIndex', index)
+            }
+            function togglePlay() {
+                if (!songInfo.value.songUrl) return
+                store.commit('setPlayingState', !playing.value)
+            }
+            function nextPlay() {
+                const list = playList.value
+                if (!list.length || list.length === 1) return
+                let index = currentIndex.value + 1
+                if (index === list.length) {
+                    index = 0
+                }
+                if (!playing.value) {
+                    store.commit('setPlayingState', true)
+                }
+                store.commit('setCurrentIndex', index)
+            }
+            // 播放器退出全屏
+            function goBack() {
+                store.commit('setFullScreen', false)
+            }
+            function pause() {
+                store.commit('setPlayingState', false)
+            }
             return {
                 prefixCls,
                 fullScreen,
@@ -70,7 +140,13 @@
                 songSingers,
                 songInfo,
                 bgImageStyle,
-                audioRef
+                playing,
+                audioRef,
+                goBack,
+                togglePlay,
+                prevPlay,
+                nextPlay,
+                pause
             }
         }
     }
@@ -114,6 +190,51 @@
                 }
             }
 
+            .bottom {
+                position: absolute;
+                bottom: .67rem;
+                width: 100%;
+
+                .operators {
+                    display: flex;
+                    align-items: center;
+
+                    .icon {
+                        flex: 1;
+                        color: #000;
+
+                        &.disable {
+                            color: #000;
+                        }
+
+                        i {
+                            font-size: 30px;
+                        }
+                    }
+
+                    .i-left {
+                        text-align: right;
+                    }
+
+                    .i-center {
+                        padding: 0 20px;
+                        text-align: center;
+
+                        i {
+                            font-size: 1.3rem;
+                        }
+                    }
+
+                    .i-right {
+                        text-align: left
+                    }
+
+                    .icon-favorite {
+                        color: #000;
+                    }
+                }
+            }
+
             .bg-img {
                 position: absolute;
                 left: 0;
@@ -125,7 +246,7 @@
                 background-position: center;
                 background-repeat: no-repeat;
                 background-size: cover;
-                filter: blur(30px);
+                filter: blur(40px);
 
                 img {
                     width: 100%;
