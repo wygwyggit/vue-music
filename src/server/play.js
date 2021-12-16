@@ -1,9 +1,16 @@
 import { get } from './base'
-export function getSongsDetail(id) {
-    return get(`song/detail?ids=${id}`)
+export async function getSongInfo(id) {
+    const songDetail = await getSongDetail(id)
+    const songUrl = await getSongUrl(id)
+    return {
+        ...(songDetail.songs || [])[0],
+        songUrl
+    }
 }
-export async function getSongsUrl(id) {
+function getSongDetail(id) {
+   return get(`song/detail?ids=${id}`)
+}
+async function getSongUrl(id) {
     const res = await get(`song/url?id=${id}`)
-    console.log(res, '222')
     return (res.data || [])[0].url
 }

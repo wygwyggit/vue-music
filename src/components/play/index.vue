@@ -21,8 +21,7 @@
         ref
     } from '@vue/reactivity'
     import {
-        getSongsDetail,
-        getSongsUrl
+        getSongInfo
     } from '@/server/play'
     import {
         useStore
@@ -47,7 +46,6 @@
             const bgImageStyle = computed(() => {
                 let backgroundImage = ''
                 const songInfoV = songInfo.value
-                console.log(songInfoV, 'hhhhh')
                 if (songInfoV) {
                     backgroundImage = `url(${songInfoV.al.picUrl})`
                 }
@@ -56,14 +54,11 @@
                 }
             })
             watch(currentSong, async (newSong) => {
-                if (!newSong.id) {
+                const songId = newSong.id
+                if (!songId) {
                     return
                 }
-                const songId = currentSong.value.id
-                const res = await getSongsDetail(songId)
-                const url = await getSongsUrl(songId)
-                songInfo.value = (res.songs || [])[0]
-                Object.assign(songInfo.value, { songUrl: url })
+                songInfo.value = await getSongInfo(songId)
                 const audioEl = audioRef.value
                 audioEl.src = songInfo.value.songUrl
                 audioEl.play()
