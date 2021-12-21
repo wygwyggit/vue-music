@@ -15,8 +15,9 @@ const api = {
         this.storage.setItem(key, serialize(val))
         return val
     },
-    get(key) {
-        return deserialize(this.storage.getItem(key))
+    get(key, def) {
+        const val = deserialize(this.storage.getItem(key))
+        return val === undefined ? def : val
     },
     has(key) {
         return this.get(key) !== undefined

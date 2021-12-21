@@ -109,15 +109,63 @@ class MyPromise {
     }
 
     static reject(reason) {
-        return new MyPromise((resole, reject) => {
+        return new MyPromise((resolve, reject) => {
             reject(reason)
         })
+    }
+
+    static allSettled(promiseArr) {
+        const resArr = []
+        let idx = 0
+        return new MyPromise((resolve, reject) => {
+            if (!isIterator(promiseArr)) {
+                reject(new TypeError(promiseArr + ' is not iterable (cannot read property Symbol(Symbol.iterator))'))
+            }
+            if (promiseArr.length === 0) {
+                resolve([])
+            }
+            for (const [index, promise] of promiseArr.entries()) {
+                if (isPromise(promise)) {
+                    promise.then(value => {
+                        formatResArr('fulfilled', value, index, resolve)
+                    }, reason => {
+                        formatResArr('rejected', reason, index, resolve)
+                    })
+                } else {
+                    formatResArr('fulfilled', promise, index, resolve)
+                }
+            }
+        })
+
+        function formatResArr(status, value, index, resolve) {
+            let objItem = null
+            switch (status) {
+                case 'fulfilled':
+                    objItem = {
+                        status,
+                        value
+                    }
+                    break;
+                case 'rejected':
+                    objItem = {
+                        status,
+                        reason: value
+                    }
+                    break;
+                default:
+                    break;
+            }
+            resArr[index] = objItem
+            if (++idx === promiseArr.length) {
+                resolve(resArr)
+            }
+        }
     }
 
     static all(promiseArr) {
         const resArr = []
         let idx = 0
-        return new Promise((resolve, reject) => {
+        return new MyPromise((resolve, reject) => {
             promiseArr.forEach((promise, index) => {
                 if (isPromise(promise)) {
                     promise.then(value => {
@@ -135,14 +183,37 @@ class MyPromise {
                 resolve(resArr)
             }
         }
-
-        function isPromise(value) {
-            if ((typeof value === 'object' && value !== null) || typeof value === 'function') {
-                return typeof value.then === 'function'
-            }
-            return false
-        }
     }
+
+    static race(promiseArr) {
+        return new MyPromise((resolve, reject) => {
+            if (!isIterator(promiseArr)) {
+                reject(new TypeError(promiseArr + ' is not iterable (cannot read property Symbol(Symbol.iterator))'))
+            }
+            for (const promise of promiseArr) {
+                if (isPromise(promise)) {
+                    promise.then(val => {
+                        resolve(val)
+                    }, reason => {
+                        reject(reason)
+                    })
+                } else {
+                    resolve(promise)
+                }
+            }
+        })
+    }
+}
+
+function isIterator(value) {
+    return value !== null && value !== undefined && typeof value[Symbol.iterator] === 'function'
+}
+
+function isPromise(value) {
+    if ((typeof value === 'object' && value !== null) || typeof value === 'function') {
+        return typeof value.then === 'function'
+    }
+    return false
 }
 
 function resolvePromise(promise2, x, resolve, reject) {

@@ -3,3 +3,4 @@ export const PLAY_MODE = {
     loop: 1,
     random: 2
 }
+export const FAVORITE_KEY = '__favorite__'

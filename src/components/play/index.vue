@@ -25,7 +25,7 @@
                         <i class="music-icon icon-next" @click="nextPlay"></i>
                     </div>
                     <div class="icon i-right">
-                        <i class="music-icon icon-like"></i>
+                        <i class="music-icon" :class="getFavoriteIcon(currentSong)" @click="toggleFavorite(currentSong)"></i>
                     </div>
                 </div>
             </div>
@@ -49,6 +49,7 @@
         watch
     } from '@vue/runtime-core'
     import useMode from './use-mode'
+    import useFavorite from './use-favorite'
     export default {
         name: 'play',
         setup() {
@@ -80,6 +81,10 @@
                 modeIcon,
                 changeMode
             } = useMode()
+            const {
+                getFavoriteIcon,
+                toggleFavorite
+            } = useFavorite()
             watch(currentSong, async (newSong) => {
                 const songId = newSong.id
                 if (!songId) {
@@ -169,7 +174,10 @@
                 pause,
                 // mode
                 modeIcon,
-                changeMode
+                changeMode,
+                // favorite
+                getFavoriteIcon,
+                toggleFavorite
             }
         }
     }
@@ -248,8 +256,8 @@
                         text-align: left
                     }
 
-                    .icon-favorite {
-                        color: #fff;
+                    .icon-like {
+                        color: $--color-danger;
                     }
                 }
             }

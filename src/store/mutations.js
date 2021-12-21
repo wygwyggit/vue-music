@@ -23,6 +23,7 @@ export default {
     setFullScreen(state, fullScreen) {
       state.fullScreen = fullScreen
     },
+    // 收藏歌曲
     setFavoriteList(state, list) {
       state.favoriteList = list
     },

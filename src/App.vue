@@ -7,18 +7,20 @@
     import MyPromise from '@/assets/js/myPromise.js'
     export default {
         setup() {
-            const promise = new MyPromise(function(resolve, reject) {
-               resolve(new MyPromise((resolve, reject) => {
-                  resolve('123')
-               }))
+            const p1 = new MyPromise((resolve, reject) => {
+                setTimeout(() => {
+                    reject(new Error('error'))
+                }, 1000);
             })
-            console.log(promise.state)
-            promise.then(value => {
-                console.log(value, '111')
+            const p2 = new MyPromise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve('success')
+                }, 2000);
             })
-
-            MyPromise.all([MyPromise.resolve('1'), MyPromise.resolve('2')]).then(value => {
-                console.log(value, 'all')
+            MyPromise.race([p1, p2]).then(value => {
+                console.log(value)
+            }, reason => {
+                console.log(reason)
             })
         }
     }
