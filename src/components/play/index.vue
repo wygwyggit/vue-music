@@ -10,6 +10,7 @@
                 </div>
                 <div class="song-singer">{{ songSingers }}</div>
             </div>
+            <progress-bar></progress-bar>
             <div class="bottom">
                 <div class="operators">
                     <div class="icon i-left">
@@ -48,10 +49,14 @@
     import {
         watch
     } from '@vue/runtime-core'
+    import progressBar from './progress.vue'
     import useMode from './use-mode'
     import useFavorite from './use-favorite'
     export default {
         name: 'play',
+        components: {
+            progressBar
+        },
         setup() {
             const prefixCls = 'play'
             const audioRef = ref(null)
