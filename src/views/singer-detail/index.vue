@@ -11,7 +11,7 @@
     import SongList from '@/components/base/song-list'
     import {
         getSingerDetail,
-        getSingerSongs
+        getSingerTopSongs
     } from '@/server/singer'
     import {
         mapActions
@@ -55,7 +55,7 @@
         },
         async created() {
             const res = await getSingerDetail(this.singerMid)
-            const songsData = await getSingerSongs(this.singerMid)
+            const songsData = await getSingerTopSongs(this.singerMid)
             res && (this.singer = res.data)
             songsData && (this.songs = songsData.songs)
             this.isLoading = false

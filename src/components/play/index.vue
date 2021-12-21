@@ -13,15 +13,15 @@
             <div class="bottom">
                 <div class="operators">
                     <div class="icon i-left">
-                        <i class="music-icon icon-sequence"></i>
+                        <i class="music-icon" :class="modeIcon" @click="changeMode"></i>
                     </div>
-                    <div class="icon i-left" :class="disableCls">
+                    <div class="icon i-left">
                         <i class="music-icon icon-prev" @click="prevPlay"></i>
                     </div>
-                    <div class="icon i-center" :class="disableCls">
+                    <div class="icon i-center">
                         <i class="music-icon" :class="{'icon-pause': playing,'icon-mplay': !playing }" @click="togglePlay"></i>
                     </div>
-                    <div class="icon i-right" :class="disableCls">
+                    <div class="icon i-right">
                         <i class="music-icon icon-next" @click="nextPlay"></i>
                     </div>
                     <div class="icon i-right">
@@ -30,7 +30,7 @@
                 </div>
             </div>
         </div>
-        <audio ref="audioRef" @pause="pause"></audio>
+        <audio ref="audioRef" @pause="pause" @canplay="ready" @error="error"></audio>
     </div>
 </template>
 
@@ -48,12 +48,15 @@
     import {
         watch
     } from '@vue/runtime-core'
+    import useMode from './use-mode'
     export default {
         name: 'play',
         setup() {
             const prefixCls = 'play'
             const audioRef = ref(null)
             const songInfo = ref(null)
+            // 歌曲是否准备好
+            const songReady = ref(false)
             const store = useStore()
             // 初始化main-play播放器
             const fullScreen = computed(() => store.state.fullScreen)
@@ -73,15 +76,21 @@
                     backgroundImage
                 }
             })
+            const {
+                modeIcon,
+                changeMode
+            } = useMode()
             watch(currentSong, async (newSong) => {
                 const songId = newSong.id
                 if (!songId) {
                     return
                 }
+                songReady.value = false
                 songInfo.value = await getSongInfo(songId)
                 const audioEl = audioRef.value
                 if (!songInfo.value.songUrl) {
                     audioEl.src = ''
+                    songReady.value = true
                     store.commit('setPlayingState', false)
                     return console.log('歌曲暂时无法播放')
                 }
@@ -98,9 +107,17 @@
             })
             const currentIndex = computed(() => store.state.currentIndex)
             const playList = computed(() => store.state.playlist)
+
+            function ready() {
+                if (songReady.value) return
+                songReady.value = true
+            }
+            function error() {
+                songReady.value = true
+            }
             function prevPlay() {
                 const list = playList.value
-                if (!list.length || list.length === 1) return
+                if (!songReady.value || !list.length || list.length === 1) return
                 let index = currentIndex.value - 1
                 if (index < 0) {
                     index = list.length - 1
@@ -111,12 +128,12 @@
                 store.commit('setCurrentIndex', index)
             }
             function togglePlay() {
-                if (!songInfo.value.songUrl) return
+                if (!songInfo.value.songUrl || !songReady.value) return
                 store.commit('setPlayingState', !playing.value)
             }
             function nextPlay() {
                 const list = playList.value
-                if (!list.length || list.length === 1) return
+                if (!songReady.value || !list.length || list.length === 1) return
                 let index = currentIndex.value + 1
                 if (index === list.length) {
                     index = 0
@@ -133,6 +150,7 @@
             function pause() {
                 store.commit('setPlayingState', false)
             }
+
             return {
                 prefixCls,
                 fullScreen,
@@ -144,9 +162,14 @@
                 audioRef,
                 goBack,
                 togglePlay,
+                ready,
+                error,
                 prevPlay,
                 nextPlay,
-                pause
+                pause,
+                // mode
+                modeIcon,
+                changeMode
             }
         }
     }
@@ -201,11 +224,7 @@
 
                     .icon {
                         flex: 1;
-                        color: #000;
-
-                        &.disable {
-                            color: #000;
-                        }
+                        color: #fff;
 
                         i {
                             font-size: 30px;
@@ -230,7 +249,7 @@
                     }
 
                     .icon-favorite {
-                        color: #000;
+                        color: #fff;
                     }
                 }
             }

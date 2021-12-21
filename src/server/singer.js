@@ -3,8 +3,8 @@ import pinyin from 'pinyin'
 export function getSingerDetail(id) {
     return get(`/artist/detail?id=${id}`)
 }
-export function getSingerSongs(id) {
-    return get(`/artist/songs?id=${id}&order=hot`)
+export function getSingerTopSongs(id) {
+    return get(`/artist/top/song?id=${id}&order=hot`)
 }
 export async function getSingerList(pageSize = 1, limit = 100) {
   const result = await get(`/top/artists?offset=${(pageSize - 1) * limit}&limit=${limit}`)

@@ -4,6 +4,7 @@
             <div class="rank" v-if="rank">
                 <span :class="getRankCls(index)">{{ getRankText(index) }}</span>
             </div>
+            <span class="index">{{index + 1}}</span>
             <div class="content">
                 <p class="name">{{song.name}}</p>
                 <p class="desc">{{getDesc(song)}}</p>
@@ -67,7 +68,11 @@
             align-items: center;
             box-sizing: border-box;
             height: 64px;
-
+            .index {
+                padding-right: .17rem;
+                font-size: .4rem;
+                color: $--color-text-desc;
+            }
             .content {
                 flex: 1;
                 line-height: 20px;

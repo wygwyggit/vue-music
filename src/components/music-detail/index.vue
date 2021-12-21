@@ -13,7 +13,7 @@
                 <div class="play-btn-wrapper" v-if="!noResult">
                     <div class="play-btn" @click="random">
                         <i class="music-icon icon-play"></i>
-                        <span class="text">随机播放全部</span>
+                        <span class="text">随机播放热门50</span>
                     </div>
                 </div>
                 <slot></slot>
