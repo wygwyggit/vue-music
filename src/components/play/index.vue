@@ -10,8 +10,14 @@
                 </div>
                 <div class="song-singer">{{ songSingers }}</div>
             </div>
-            <progress-bar></progress-bar>
             <div class="bottom">
+                <div class="progress-wrapper">
+                    <span class="time time-l">{{formatTime(currentTime)}}</span>
+                    <div class="progress-bar-wrapper">
+                        <progress-bar :progress="progress" @progress-changing="progressChanging" @progress-changed="progressChanged"></progress-bar>
+                    </div>
+                    <span class="time time-r">{{formatTime(duration)}}</span>
+                </div>
                 <div class="operators">
                     <div class="icon i-left">
                         <i class="music-icon" :class="modeIcon" @click="changeMode"></i>
@@ -20,18 +26,20 @@
                         <i class="music-icon icon-prev" @click="prevPlay"></i>
                     </div>
                     <div class="icon i-center">
-                        <i class="music-icon" :class="{'icon-pause': playing,'icon-mplay': !playing }" @click="togglePlay"></i>
+                        <i class="music-icon" :class="{'icon-pause': playing,'icon-mplay': !playing }"
+                            @click="togglePlay"></i>
                     </div>
                     <div class="icon i-right">
                         <i class="music-icon icon-next" @click="nextPlay"></i>
                     </div>
                     <div class="icon i-right">
-                        <i class="music-icon" :class="getFavoriteIcon(currentSong)" @click="toggleFavorite(currentSong)"></i>
+                        <i class="music-icon" :class="getFavoriteIcon(currentSong)"
+                            @click="toggleFavorite(currentSong)"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <audio ref="audioRef" @pause="pause" @canplay="ready" @error="error"></audio>
+        <audio ref="audioRef" @pause="pause" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
     </div>
 </template>
 
@@ -52,6 +60,7 @@
     import progressBar from './progress.vue'
     import useMode from './use-mode'
     import useFavorite from './use-favorite'
+    import { formatTime } from '@/assets/js/utils'
     export default {
         name: 'play',
         components: {
@@ -63,6 +72,7 @@
             const songInfo = ref(null)
             // 歌曲是否准备好
             const songReady = ref(false)
+
             const store = useStore()
             // 初始化main-play播放器
             const fullScreen = computed(() => store.state.fullScreen)
@@ -82,6 +92,29 @@
                     backgroundImage
                 }
             })
+
+            // 歌曲进度条
+            const currentTime = ref(0)
+            const duration = ref(0)
+            let isProgressChanging = false
+            const progress = computed(() => {
+                return currentTime.value / duration.value
+            })
+
+            function updateTime(e) {
+                if (!isProgressChanging) {
+                    currentTime.value = e.target.currentTime
+                }
+            }
+            function progressChanging(progress) {
+                isProgressChanging = true
+                currentTime.value = duration.value * progress
+            }
+            function progressChanged(progress) {
+                isProgressChanging = false
+                audioRef.value.currentTime = currentTime.value = duration.value * progress
+            }
+
             const {
                 modeIcon,
                 changeMode
@@ -95,6 +128,7 @@
                 if (!songId) {
                     return
                 }
+                currentTime.value = 0
                 songReady.value = false
                 songInfo.value = await getSongInfo(songId)
                 const audioEl = audioRef.value
@@ -121,10 +155,13 @@
             function ready() {
                 if (songReady.value) return
                 songReady.value = true
+                duration.value = Math.ceil(audioRef.value.duration)
             }
+
             function error() {
                 songReady.value = true
             }
+
             function prevPlay() {
                 const list = playList.value
                 if (!songReady.value || !list.length || list.length === 1) return
@@ -137,10 +174,12 @@
                 }
                 store.commit('setCurrentIndex', index)
             }
+
             function togglePlay() {
                 if (!songInfo.value.songUrl || !songReady.value) return
                 store.commit('setPlayingState', !playing.value)
             }
+
             function nextPlay() {
                 const list = playList.value
                 if (!songReady.value || !list.length || list.length === 1) return
@@ -157,6 +196,7 @@
             function goBack() {
                 store.commit('setFullScreen', false)
             }
+
             function pause() {
                 store.commit('setPlayingState', false)
             }
@@ -182,7 +222,15 @@
                 changeMode,
                 // favorite
                 getFavoriteIcon,
-                toggleFavorite
+                toggleFavorite,
+                // 进度条
+                progress,
+                currentTime,
+                updateTime,
+                duration,
+                formatTime,
+                progressChanging,
+                progressChanged
             }
         }
     }
@@ -230,6 +278,29 @@
                 position: absolute;
                 bottom: .67rem;
                 width: 100%;
+
+                .progress-wrapper {
+                    display: flex;
+                    align-items: center;
+                    width: 80%;
+                    margin: 0 auto;
+                    padding: .5rem 0;
+
+                    .progress-bar-wrapper {
+                        flex: 1;
+                    }
+                    .time {
+                        color: #fff;
+                        font-size: .4rem;
+                        width: 1.25rem;
+                        &.time-l {
+                            text-align: left;
+                        }
+                        &.time-r {
+                            text-align: right;
+                        }
+                    }
+                }
 
                 .operators {
                     display: flex;
