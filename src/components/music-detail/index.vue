@@ -162,7 +162,6 @@
             width: 100%;
             transform-origin: top;
             background-size: cover;
-            background-position: center center;
             z-index: 0;
 
             .filter {
