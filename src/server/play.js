@@ -14,3 +14,19 @@ async function getSongUrl(id) {
     const res = await get(`song/url?id=${id}`)
     return (res.data || [])[0].url
 }
+
+const songLyricMap = {}
+export async function getLyric(song) {
+    if (song.lyric) {
+        return Promise.resolve(song.lyric)
+    }
+    const id = song.id
+    const lyric = songLyricMap[id]
+    if (lyric) {
+        return lyric
+    }
+    const res = await get(`/lyric?id=${song.id}`)
+    const mlyric = (res.lrc || {}).lyric || '[00:00.000]该歌曲暂时没有歌词'
+    songLyricMap[id] = mlyric
+    return mlyric
+}

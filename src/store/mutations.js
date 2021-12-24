@@ -29,7 +29,7 @@ export default {
     },
     addSongLyric(state, { song, lyric }) {
       state.sequenceList.map((item) => {
-        if (item.mid === song.mid) {
+        if (item.id === song.id) {
           item.lyric = lyric
         }
         return item

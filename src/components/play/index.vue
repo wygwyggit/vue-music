@@ -12,9 +12,9 @@
             </div>
             <div class="middle">
                 <div class="middle-l">
-                    <div class="cd-wrapper">
+                    <div class="cd-wrapper" ref="cdRef">
                         <div class="cd">
-                            <img :src="songInfo.al.picUrl" alt="" v-if="songInfo">
+                            <img :src="songInfo.al.picUrl" alt="" v-if="songInfo" ref="cdImageRef" :class="cdCls">
                         </div>
                     </div>
                 </div>
@@ -72,6 +72,8 @@
     import progressBar from './progress.vue'
     import useMode from './use-mode'
     import useFavorite from './use-favorite'
+    import useLyric from './use-lyric'
+    import useCd from './use-cd'
     import {
         PLAY_MODE
     } from '@/assets/js/constant'
@@ -118,6 +120,13 @@
                 getFavoriteIcon,
                 toggleFavorite
             } = useFavorite()
+            const {
+                cdCls,
+                cdRef,
+                cdImageRef
+            } = useCd()
+
+            useLyric()
 
             // 歌曲进度条
             const currentTime = ref(0)
@@ -268,7 +277,11 @@
                 formatTime,
                 progressChanging,
                 progressChanged,
-                end
+                end,
+                // cd
+                cdCls,
+                cdRef,
+                cdImageRef
             }
         }
     }
@@ -309,6 +322,7 @@
                 }
 
                 .song-singer {
+                    padding-top: .1rem;
                     font-size: .4rem;
                 }
             }
@@ -343,6 +357,9 @@
                         img {
                             width: 100%;
                             height: 100%;
+                            &.playing {
+                                animation: playing 20s linear infinite;
+                            }
                         }
                     }
                 }
