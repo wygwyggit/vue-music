@@ -1,5 +1,5 @@
 <template>
-    <div :class="prefixCls">
+    <div :class="prefixCls" @click="clickFn">
         <div class="bar-inner">
             <div class="progress" :style="progressStyle" ref="progress"></div>
             <div class="progress-btn-wrapper" :style="btnStyle"
@@ -26,9 +26,11 @@
         data() {
             return {
                 prefixCls: 'progress-bar',
-                offset: 0,
-                touch: {}
+                offset: 0
             }
+        },
+        created() {
+            this.touch = {}
         },
         computed: {
             progressStyle() {
@@ -55,6 +57,13 @@
                  const borWidth = this.$el.clientWidth - 15
                  const progress = this.$refs.progress.clientWidth / borWidth
                  this.$emit('progress-changed', progress)
+            },
+            clickFn(e) {
+                const rect = this.$el.getBoundingClientRect()
+                const offset = e.pageX - rect.left
+                const borWidth = this.$el.clientWidth - 15
+                const progress = offset / borWidth
+                this.$emit('progress-changed', progress)
             }
         },
         watch: {

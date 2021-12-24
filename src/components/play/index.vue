@@ -10,11 +10,22 @@
                 </div>
                 <div class="song-singer">{{ songSingers }}</div>
             </div>
+            <div class="middle">
+                <div class="middle-l">
+                    <div class="cd-wrapper">
+                        <div class="cd">
+                            <img :src="songInfo.al.picUrl" alt="" v-if="songInfo">
+                        </div>
+                    </div>
+                </div>
+                <div class="middle-r"></div>
+            </div>
             <div class="bottom">
                 <div class="progress-wrapper">
                     <span class="time time-l">{{formatTime(currentTime)}}</span>
                     <div class="progress-bar-wrapper">
-                        <progress-bar :progress="progress" @progress-changing="progressChanging" @progress-changed="progressChanged"></progress-bar>
+                        <progress-bar :progress="progress" @progress-changing="progressChanging"
+                            @progress-changed="progressChanged"></progress-bar>
                     </div>
                     <span class="time time-r">{{formatTime(duration)}}</span>
                 </div>
@@ -39,7 +50,8 @@
                 </div>
             </div>
         </div>
-        <audio ref="audioRef" @pause="pause" @canplay="ready" @error="error" @timeupdate="updateTime"></audio>
+        <audio ref="audioRef" @pause="pause" @canplay="ready" @error="error" @timeupdate="updateTime"
+            @ended="end"></audio>
     </div>
 </template>
 
@@ -60,7 +72,12 @@
     import progressBar from './progress.vue'
     import useMode from './use-mode'
     import useFavorite from './use-favorite'
-    import { formatTime } from '@/assets/js/utils'
+    import {
+        PLAY_MODE
+    } from '@/assets/js/constant'
+    import {
+        formatTime
+    } from '@/assets/js/utils'
     export default {
         name: 'play',
         components: {
@@ -92,6 +109,15 @@
                     backgroundImage
                 }
             })
+            const {
+                modeIcon,
+                playMode,
+                changeMode
+            } = useMode()
+            const {
+                getFavoriteIcon,
+                toggleFavorite
+            } = useFavorite()
 
             // 歌曲进度条
             const currentTime = ref(0)
@@ -106,23 +132,25 @@
                     currentTime.value = e.target.currentTime
                 }
             }
+
             function progressChanging(progress) {
                 isProgressChanging = true
                 currentTime.value = duration.value * progress
             }
+
             function progressChanged(progress) {
                 isProgressChanging = false
                 audioRef.value.currentTime = currentTime.value = duration.value * progress
             }
 
-            const {
-                modeIcon,
-                changeMode
-            } = useMode()
-            const {
-                getFavoriteIcon,
-                toggleFavorite
-            } = useFavorite()
+            function end() {
+                if (playMode.value === PLAY_MODE.loop) {
+                    loopPlay()
+                } else {
+                    nextPlay()
+                }
+            }
+
             watch(currentSong, async (newSong) => {
                 const songId = newSong.id
                 if (!songId) {
@@ -155,7 +183,9 @@
             function ready() {
                 if (songReady.value) return
                 songReady.value = true
-                duration.value = Math.ceil(audioRef.value.duration)
+                setTimeout(() => {
+                    duration.value = audioRef.value.duration
+                }, 300)
             }
 
             function error() {
@@ -191,6 +221,13 @@
                     store.commit('setPlayingState', true)
                 }
                 store.commit('setCurrentIndex', index)
+            }
+
+            function loopPlay() {
+                const audioEl = audioRef.value
+                audioEl.currentTime = currentTime.value = 0
+                audioEl.play()
+                store.commit('setPlayingState', true)
             }
             // 播放器退出全屏
             function goBack() {
@@ -230,7 +267,8 @@
                 duration,
                 formatTime,
                 progressChanging,
-                progressChanged
+                progressChanged,
+                end
             }
         }
     }
@@ -249,6 +287,7 @@
             background-color: #161824;
 
             .top {
+                padding-bottom: .4rem;
                 color: #fff;
                 text-align: center;
 
@@ -274,6 +313,41 @@
                 }
             }
 
+            .middle {
+                .middle-l {
+                    position: relative;
+                    width: 100%;
+                    height: 0;
+                    padding-top: 80%;
+                    .cd-wrapper {
+                        position: absolute;
+                        top: 0;
+                        left: 10%;
+                        width: 80%;
+                        height: 100%;
+                        box-sizing: border-box;
+                        background: url('./images/border-cd.png');
+                        background-size: contain;
+                    }
+                    .cd {
+                        position: absolute;
+                        left: 50%;
+                        top: 50%;
+                        width: 60%;
+                        height: 60%;
+                        border-radius: 50%;
+                        overflow: hidden;
+                        background: #000 url('./images/default-cd.png');
+                        background-size: contain;
+                        transform: translate(-50%, -50%);
+                        img {
+                            width: 100%;
+                            height: 100%;
+                        }
+                    }
+                }
+            }
+
             .bottom {
                 position: absolute;
                 bottom: .67rem;
@@ -289,13 +363,16 @@
                     .progress-bar-wrapper {
                         flex: 1;
                     }
+
                     .time {
                         color: #fff;
                         font-size: .4rem;
                         width: 1.25rem;
+
                         &.time-l {
                             text-align: left;
                         }
+
                         &.time-r {
                             text-align: right;
                         }
