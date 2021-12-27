@@ -10,15 +10,28 @@
                 </div>
                 <div class="song-singer">{{ songSingers }}</div>
             </div>
-            <div class="middle">
-                <div class="middle-l">
-                    <div class="cd-wrapper" ref="cdRef">
-                        <div class="cd">
-                            <img :src="songInfo.al.picUrl" alt="" v-if="songInfo" ref="cdImageRef" :class="cdCls">
+            <div class="middle" @click="toggleView">
+                <div class="middle-center">
+                    <div :style="{opacity:(currentView === 'cd' ? '1' : '0')}">
+                        <div class="cd-wrapper" ref="cdRef">
+                            <div class="cd">
+                                <img :src="songInfo.al.picUrl" alt="" v-if="songInfo" ref="cdImageRef" :class="cdCls">
+                            </div>
+                        </div>
+                        <div class="playing-lyric-wrapper">
+                            <p class="playing-lyric">{{playingLyric}}</p>
                         </div>
                     </div>
+                    <scroll class="lyric-scroll" ref="scrollRef"
+                        :style="{opacity:(currentView === 'lyric' ? '1' : '0')}">
+                        <div class="lyric-wrapper">
+                            <div v-if="currentLyric" ref="lyricRef">
+                                <p v-for="(item, index) of currentLyric.lines" :key="item.time" class="text"
+                                    :class="{'current': currentLineNum == index}">{{item.txt}}</p>
+                            </div>
+                        </div>
+                    </scroll>
                 </div>
-                <div class="middle-r"></div>
             </div>
             <div class="bottom">
                 <div class="progress-wrapper">
@@ -69,6 +82,7 @@
     import {
         watch
     } from '@vue/runtime-core'
+    import scroll from '@/components/base/scroll'
     import progressBar from './progress.vue'
     import useMode from './use-mode'
     import useFavorite from './use-favorite'
@@ -83,7 +97,8 @@
     export default {
         name: 'play',
         components: {
-            progressBar
+            progressBar,
+            scroll
         },
         setup() {
             const prefixCls = 'play'
@@ -111,22 +126,6 @@
                     backgroundImage
                 }
             })
-            const {
-                modeIcon,
-                playMode,
-                changeMode
-            } = useMode()
-            const {
-                getFavoriteIcon,
-                toggleFavorite
-            } = useFavorite()
-            const {
-                cdCls,
-                cdRef,
-                cdImageRef
-            } = useCd()
-
-            useLyric()
 
             // 歌曲进度条
             const currentTime = ref(0)
@@ -145,11 +144,16 @@
             function progressChanging(progress) {
                 isProgressChanging = true
                 currentTime.value = duration.value * progress
+                // 先同步歌词位置
+                playLyric()
+                // 暂停播放，手指松开再播放
+                stopLyric()
             }
 
             function progressChanged(progress) {
                 isProgressChanging = false
                 audioRef.value.currentTime = currentTime.value = duration.value * progress
+                playLyric()
             }
 
             function end() {
@@ -159,6 +163,36 @@
                     nextPlay()
                 }
             }
+
+            const {
+                modeIcon,
+                playMode,
+                changeMode
+            } = useMode()
+            const {
+                getFavoriteIcon,
+                toggleFavorite
+            } = useFavorite()
+            const {
+                cdCls,
+                cdRef,
+                cdImageRef
+            } = useCd()
+            // 歌词
+            const {
+                currentLyric,
+                currentLineNum,
+                playLyric,
+                stopLyric,
+                scrollRef,
+                lyricRef,
+                playingLyric,
+                currentView,
+                toggleView
+            } = useLyric({
+                songReady,
+                currentTime
+            })
 
             watch(currentSong, async (newSong) => {
                 const songId = newSong.id
@@ -182,8 +216,10 @@
                 const audioEl = audioRef.value
                 if (newVal) {
                     audioEl.play()
+                    playLyric()
                 } else {
                     audioEl.pause()
+                    stopLyric()
                 }
             })
             const currentIndex = computed(() => store.state.currentIndex)
@@ -192,6 +228,8 @@
             function ready() {
                 if (songReady.value) return
                 songReady.value = true
+                console.log(playLyric)
+                playLyric()
                 setTimeout(() => {
                     duration.value = audioRef.value.duration
                 }, 300)
@@ -281,7 +319,15 @@
                 // cd
                 cdCls,
                 cdRef,
-                cdImageRef
+                cdImageRef,
+                // lyric
+                currentLyric,
+                currentLineNum,
+                scrollRef,
+                lyricRef,
+                playingLyric,
+                currentView,
+                toggleView
             }
         }
     }
@@ -297,10 +343,12 @@
             left: 0;
             width: 100%;
             height: 100%;
+            display: flex;
+            flex-direction: column;
             background-color: #161824;
 
             .top {
-                padding-bottom: .4rem;
+                padding-bottom: .7rem;
                 color: #fff;
                 text-align: center;
 
@@ -328,11 +376,18 @@
             }
 
             .middle {
-                .middle-l {
+                flex: 1;
+
+                .middle-center {
                     position: relative;
                     width: 100%;
                     height: 0;
                     padding-top: 80%;
+
+                    >div {
+                        transition: all .3s linear;
+                    }
+
                     .cd-wrapper {
                         position: absolute;
                         top: 0;
@@ -343,6 +398,17 @@
                         background: url('./images/border-cd.png');
                         background-size: contain;
                     }
+
+                    .playing-lyric-wrapper {
+                        width: 80%;
+                        margin: .7rem auto 0 auto;
+                        overflow: hidden;
+                        text-align: center;
+                        font-size: .4rem;
+                        color: hsla(0,0%,100%,.8)
+
+                    }
+
                     .cd {
                         position: absolute;
                         left: 50%;
@@ -354,11 +420,42 @@
                         background: #000 url('./images/default-cd.png');
                         background-size: contain;
                         transform: translate(-50%, -50%);
+
                         img {
                             width: 100%;
                             height: 100%;
+
                             &.playing {
                                 animation: playing 20s linear infinite;
+                            }
+                        }
+                    }
+                }
+
+                .lyric-scroll {
+                    position: fixed;
+                    width: 100%;
+                    top: 2rem;
+                    bottom: 4rem;
+                    white-space: nowrap;
+                    font-size: 0;
+                    overflow: hidden;
+
+                    .lyric-wrapper {
+                        width: 80%;
+                        margin: 0 auto;
+                        text-align: center;
+
+                        .text {
+                            line-height: .8rem;
+                            font-size: .4rem;
+                            color: hsla(0, 0%, 100%, .6);
+                            white-space: pre-wrap;
+                            transition: all .3s linear;
+
+                            &.current {
+                                color: #fff;
+                                transform: scale(1.2);
                             }
                         }
                     }
@@ -366,9 +463,8 @@
             }
 
             .bottom {
-                position: absolute;
-                bottom: .67rem;
                 width: 100%;
+                padding-bottom: .5rem;
 
                 .progress-wrapper {
                     display: flex;
