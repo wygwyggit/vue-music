@@ -10,14 +10,24 @@
                 </div>
                 <div class="song-singer">{{ songSingers }}</div>
             </div>
-            <div class="middle" @click="toggleView">
-                <div class="middle-center">
+            <div class="middle" @click="toggleView" @touchstart.prevent="onMiddleTouchStart"
+            @touchmove.prevent="onMiddleTouchMove"
+            @touchend.prevent="onMiddleTouchEnd"
+            >
+                <div class="content">
                     <div :style="{opacity:(currentView === 'cd' ? '1' : '0')}">
-                        <div class="cd-wrapper" ref="cdRef">
-                            <div class="cd">
-                                <img :src="songInfo.al.picUrl" alt="" v-if="songInfo" ref="cdImageRef" :class="cdCls">
+                        <div class="cd-border">
+                            <div class="cd-wrapper" ref="cdRef" :style="cdMainStyle">
+                                <div class="cd">
+                                    <img :src="songInfo.al.picUrl" alt="" v-if="songInfo && songInfo.al.picUrl" ref="cdImageRef"
+                                        :class="cdCls">
+                                </div>
+                            </div>
+                            <div class="cd-wrapper right" :style="cdMainStyle">
+
                             </div>
                         </div>
+
                         <div class="playing-lyric-wrapper">
                             <p class="playing-lyric">{{playingLyric}}</p>
                         </div>
@@ -88,6 +98,7 @@
     import useFavorite from './use-favorite'
     import useLyric from './use-lyric'
     import useCd from './use-cd'
+    import useMiddleInterActive from './use-middle-interactive'
     import {
         PLAY_MODE
     } from '@/assets/js/constant'
@@ -194,6 +205,9 @@
                 currentTime
             })
 
+            // 歌曲左右滑动切歌
+           const { cdMainStyle, onMiddleTouchStart, onMiddleTouchMove, onMiddleTouchEnd } = useMiddleInterActive()
+
             watch(currentSong, async (newSong) => {
                 const songId = newSong.id
                 if (!songId) {
@@ -241,7 +255,8 @@
 
             function prevPlay() {
                 const list = playList.value
-                if (!songReady.value || !list.length || list.length === 1) return
+                if (!songReady.value || !list.length || list.length === 1) return;
+                (songInfo.value.al || {}).picUrl = ''
                 let index = currentIndex.value - 1
                 if (index < 0) {
                     index = list.length - 1
@@ -259,7 +274,8 @@
 
             function nextPlay() {
                 const list = playList.value
-                if (!songReady.value || !list.length || list.length === 1) return
+                if (!songReady.value || !list.length || list.length === 1) return;
+                (songInfo.value.al || {}).picUrl = ''
                 let index = currentIndex.value + 1
                 if (index === list.length) {
                     index = 0
@@ -327,7 +343,12 @@
                 lyricRef,
                 playingLyric,
                 currentView,
-                toggleView
+                toggleView,
+                // middleInterActive
+                cdMainStyle,
+                onMiddleTouchStart,
+                onMiddleTouchMove,
+                onMiddleTouchEnd
             }
         }
     }
@@ -378,25 +399,41 @@
             .middle {
                 flex: 1;
 
-                .middle-center {
+                .content {
                     position: relative;
                     width: 100%;
                     height: 0;
                     padding-top: 80%;
+                    white-space: nowrap;
 
                     >div {
                         transition: all .3s linear;
                     }
 
-                    .cd-wrapper {
+                    .cd-border {
                         position: absolute;
                         top: 0;
                         left: 10%;
                         width: 80%;
                         height: 100%;
+                        border: .4rem solid hsla(0,0%,100%,.1);
+                        border-radius: 50%;
+                    }
+
+                    .cd-wrapper {
+                        position: relative;
+                        display: inline-block;
+                        width: 100%;
+                        height: 100%;
+                        margin: auto auto;
                         box-sizing: border-box;
-                        background: url('./images/border-cd.png');
+                        border-radius: 50%;
+                        overflow: hidden;
+                        background: url('./images/default-cd.png');
                         background-size: contain;
+                        &.right {
+                            margin-left: 40%;
+                        }
                     }
 
                     .playing-lyric-wrapper {
@@ -405,19 +442,17 @@
                         overflow: hidden;
                         text-align: center;
                         font-size: .4rem;
-                        color: hsla(0,0%,100%,.8)
-
+                        color: hsla(0, 0%, 100%, .8)
                     }
 
                     .cd {
                         position: absolute;
                         left: 50%;
                         top: 50%;
-                        width: 60%;
-                        height: 60%;
+                        width: 65%;
+                        height: 65%;
                         border-radius: 50%;
                         overflow: hidden;
-                        background: #000 url('./images/default-cd.png');
                         background-size: contain;
                         transform: translate(-50%, -50%);
 
