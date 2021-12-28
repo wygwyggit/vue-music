@@ -46,12 +46,12 @@
 
             &.progress-background {
                 transform: scale(0.9);
-                stroke: $--color-primary;
+                stroke: $--border-color-base;
             }
 
             &.progress-bar {
                 transform: scale(0.9) rotate(-90deg);
-                stroke: $--color-primary;
+                stroke: $--border-color-hot;
             }
         }
     }

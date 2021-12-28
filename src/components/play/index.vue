@@ -68,7 +68,7 @@
                 </div>
             </div>
         </div>
-        <mini-play :songInfo="songInfo"/>
+        <mini-play :songInfo="songInfo" :progress="progress"/>
         <audio ref="audioRef" @pause="pause" @canplay="ready" @error="error" @timeupdate="updateTime"
             @ended="end"></audio>
     </div>
