@@ -1,5 +1,5 @@
 <template>
-    <div :class="prefixCls" v-show="fullScreen">
+    <div :class="prefixCls" v-show="playList.length">
         <div class="main-play" v-show="fullScreen">
             <div class="bg-img" :style="bgImageStyle">
             </div>
@@ -10,21 +10,16 @@
                 </div>
                 <div class="song-singer">{{ songSingers }}</div>
             </div>
-            <div class="middle" @click="toggleView" @touchstart.prevent="onMiddleTouchStart"
-            @touchmove.prevent="onMiddleTouchMove"
-            @touchend.prevent="onMiddleTouchEnd"
+            <div class="middle" @touchstart="toggleView"
             >
                 <div class="content">
                     <div :style="{opacity:(currentView === 'cd' ? '1' : '0')}">
                         <div class="cd-border">
-                            <div class="cd-wrapper" ref="cdRef" :style="cdMainStyle">
+                            <div class="cd-wrapper" ref="cdRef">
                                 <div class="cd">
                                     <img :src="songInfo.al.picUrl" alt="" v-if="songInfo && songInfo.al.picUrl" ref="cdImageRef"
                                         :class="cdCls">
                                 </div>
-                            </div>
-                            <div class="cd-wrapper right" :style="cdMainStyle">
-
                             </div>
                         </div>
 
@@ -73,6 +68,7 @@
                 </div>
             </div>
         </div>
+        <mini-play :songInfo="songInfo"/>
         <audio ref="audioRef" @pause="pause" @canplay="ready" @error="error" @timeupdate="updateTime"
             @ended="end"></audio>
     </div>
@@ -93,12 +89,12 @@
         watch
     } from '@vue/runtime-core'
     import scroll from '@/components/base/scroll'
+    import miniPlay from './mini-play.vue'
     import progressBar from './progress.vue'
     import useMode from './use-mode'
     import useFavorite from './use-favorite'
     import useLyric from './use-lyric'
     import useCd from './use-cd'
-    import useMiddleInterActive from './use-middle-interactive'
     import {
         PLAY_MODE
     } from '@/assets/js/constant'
@@ -109,7 +105,8 @@
         name: 'play',
         components: {
             progressBar,
-            scroll
+            scroll,
+            miniPlay
         },
         setup() {
             const prefixCls = 'play'
@@ -204,9 +201,6 @@
                 songReady,
                 currentTime
             })
-
-            // 歌曲左右滑动切歌
-           const { cdMainStyle, onMiddleTouchStart, onMiddleTouchMove, onMiddleTouchEnd } = useMiddleInterActive()
 
             watch(currentSong, async (newSong) => {
                 const songId = newSong.id
@@ -309,6 +303,7 @@
                 songInfo,
                 bgImageStyle,
                 playing,
+                playList,
                 audioRef,
                 goBack,
                 togglePlay,
@@ -343,12 +338,7 @@
                 lyricRef,
                 playingLyric,
                 currentView,
-                toggleView,
-                // middleInterActive
-                cdMainStyle,
-                onMiddleTouchStart,
-                onMiddleTouchMove,
-                onMiddleTouchEnd
+                toggleView
             }
         }
     }
@@ -431,9 +421,6 @@
                         overflow: hidden;
                         background: url('./images/default-cd.png');
                         background-size: contain;
-                        &.right {
-                            margin-left: 40%;
-                        }
                     }
 
                     .playing-lyric-wrapper {

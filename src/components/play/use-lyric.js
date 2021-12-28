@@ -64,8 +64,9 @@ export default function useLyric({ songReady, currentTime }) {
     function toggleView() {
         if (currentView.value === 'cd') {
             currentView.value = 'lyric'
-        } else {
+        } else if (currentView.value === 'lyric') {
             currentView.value = 'cd'
         }
+        console.log(currentView.value)
     }
 }
